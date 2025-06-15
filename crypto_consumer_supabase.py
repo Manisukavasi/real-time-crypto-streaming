@@ -1,46 +1,43 @@
+import time
 from kafka import KafkaConsumer
-import json
 import psycopg2
+import json
+from datetime import datetime
 
-# Supabase PostgreSQL DB credentials
+# Database config and connection (replace with actual details)
 DB_CONFIG = {
     'host': 'aws-0-us-east-2.pooler.supabase.com',
-    'port': 6543,
-    'database': 'postgres',
+    'port': '6543',
+    'dbname': 'postgres',
     'user': 'postgres.livzreipoiisqxmfwfwt',
-    'password': 'Dataproject#@1'
+    'password': 'Dataproject#@1',
 }
-
-# Connect to Supabase PostgreSQL
 conn = psycopg2.connect(**DB_CONFIG)
-cursor = conn.cursor()
+cur = conn.cursor()
 
-# Create Kafka consumer
+# Kafka consumer
 consumer = KafkaConsumer(
     'crypto_prices',
     bootstrap_servers='localhost:9092',
-    auto_offset_reset='latest',
     value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
 
-print("[Listening] for BTC-USD price data...")
+print("Listening for BTC-USD price data...")
 
-try:
-    for message in consumer:
+last_saved_time = 0  # Epoch time in seconds
+
+for message in consumer:
+    current_time = time.time()
+    if current_time - last_saved_time >= 30:
         data = message.value
-        price = data.get("price")
+        price = float(data['price'])
+        timestamp = datetime.utcnow()
 
-        if price:
-            cursor.execute(
-                "INSERT INTO btc_usd_prices (price) VALUES (%s)",
-                (price,)
-            )
-            conn.commit()
-            print(f"[Inserted] BTC-USD price: {price}")
+        cur.execute(
+            "INSERT INTO btc_usd_prices (price, timestamp) VALUES (%s, %s)",
+            (price, timestamp)
+        )
+        conn.commit()
 
-except KeyboardInterrupt:
-    print("\n[Exit] Stopping consumer...")
-
-finally:
-    cursor.close()
-    conn.close()
+        print(f"Saved price: {price} at {timestamp}")
+        last_saved_time = current_time
