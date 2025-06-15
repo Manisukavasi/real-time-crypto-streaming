@@ -4,7 +4,7 @@ This project is a real-time cryptocurrency data pipeline that streams BTC-USD pr
 
 ---
 
-## 📊 Project Flow
+##  Project Flow
 
 1. **Coinbase WebSocket**: Streams BTC-USD ticker data.
 2. **Kafka Producer**: Sends ticker data every 30 seconds to a Kafka topic (`crypto_prices`).
@@ -13,7 +13,7 @@ This project is a real-time cryptocurrency data pipeline that streams BTC-USD pr
 
 ---
 
-## 🧰 Technologies Used
+##  Technologies Used
 
 - Python 3.10+
 - Apache Kafka & Zookeeper (via Docker)
@@ -26,5 +26,7 @@ This project is a real-time cryptocurrency data pipeline that streams BTC-USD pr
 
 ---
 
-## 🗂️ Project Structure
+
+##  Download Sample Data
+- [BTC-USD 1 Hour Snapshot (CSV)](https://raw.githubusercontent.com/Manisukavasi/real-time-crypto-streaming/refs/heads/main/exports/btc_prices_20250615.csv)
 
